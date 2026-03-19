@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkillForge AI — Skill Gap Analyzer</title>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- Cursor -->
+  <div id="cursor-ring"></div>
+  <div id="cursor-dot"></div>
+
+  <!-- Background canvas -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- Floating orbs -->
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">✓ Success</div>
+
+  <!-- ═══════════ LOGIN PAGE ═══════════ -->
+  <div class="page active" id="page-login">
+    <div class="login-wrapper">
+      <div class="login-box glass-card">
+        <h2 class="login-heading">Welcome Back</h2>
+        <p class="login-subtext">Sign in to SkillForge AI</p>
+
+        <div class="field">
+          <input type="email" placeholder="Email address" id="auth-email">
+        </div>
+        <div class="field">
+          <input type="password" placeholder="Password" id="auth-pass">
+        </div>
+
+        <div class="login-actions">
+          <button class="btn-submit" id="btn-signin">Sign In</button>
+          <div class="login-footer">
+            Don't have an account? <a id="link-to-signup">Sign Up</a>
+          </div>
+        </div>
+
+        <div id="auth-error" class="auth-msg error"></div>
+        <div id="auth-loading" class="auth-msg loading">Authenticating...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SIGNUP PAGE ═══════════ -->
+  <div class="page" id="page-signup">
+    <div class="login-wrapper">
+      <div class="login-box glass-card">
+        <h2 class="login-heading">Create Account</h2>
+        <p class="login-subtext">Start optimizing your career</p>
+
+        <div class="field">
+          <input type="text" placeholder="Full Name" id="signup-name">
+        </div>
+        <div class="field">
+          <input type="email" placeholder="Email address" id="signup-email">
+        </div>
+        <div class="field">
+          <input type="password" placeholder="Password (min 6 chars)" id="signup-pass">
+        </div>
+
+        <div class="login-actions">
+          <button class="btn-submit" id="btn-signup">Create Account</button>
+          <div class="login-footer">
+            Already have an account? <a id="link-to-login">Sign In</a>
+          </div>
+        </div>
+
+        <div id="signup-error" class="auth-msg error"></div>
+        <div id="signup-loading" class="auth-msg loading">Creating account...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ VERIFY PAGE ═══════════ -->
+  <div class="page" id="page-verify">
+    <div class="login-wrapper">
+      <div class="login-box glass-card" style="text-align: center;">
+        <div style="font-size:48px; margin-bottom:16px;">✉️</div>
+        <h2 class="login-heading">Check your email</h2>
+        <p class="login-subtext" style="margin-bottom:24px;">We've sent a verification link to your email address. Please verify your email to continue.</p>
+        <button class="btn-submit" id="btn-back-to-login" style="width:100%">Back to Login</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ DASHBOARD ═══════════ -->
+  <div class="page" id="page-dashboard">
+    <div class="topbar">
+      <div class="topbar-brand">Skill<span>Forge</span> AI</div>
+      <div class="topbar-nav">
+        <button class="nav-btn active" id="nav-analyzer">Analyzer</button>
+        <button class="nav-btn" id="nav-saved-paths">Saved Paths</button>
+      </div>
+      <div class="topbar-right">
+        <div style="font-size:13px;color:var(--muted);" id="user-display-name">Loading...</div>
+        <div class="avatar" id="user-avatar">?</div>
+        <button class="nav-btn" id="btn-signout" style="color:var(--accent3);">Sign Out</button>
+      </div>
+    </div>
+
+    <div class="dashboard-body">
+
+      <!-- SAVED PATHS SECTION -->
+      <div class="section-card" id="saved-paths-section" style="display:none;">
+        <div class="card-title">
+          Your Saved Paths
+          <span class="badge">HISTORY</span>
+        </div>
+        <div class="card-sub">Previously analyzed skill paths and your progress.</div>
+        <div id="saved-paths-loading" style="color: var(--muted); padding: 20px 0;">Loading paths...</div>
+        <div id="saved-paths-list" style="display:flex; flex-direction:column; gap:16px;"></div>
+      </div>
+
+      <!-- MAIN APP WRAPPER -->
+      <div id="main-analyzer-wrapper">
+
+        <!-- Step indicator -->
+        <div class="step-indicator" id="steps">
+          <div class="step-item active" data-step="1">
+            <div class="step-num">1</div>
+            <div class="step-label">Enter Skills</div>
+          </div>
+          <div class="step-line"></div>
+          <div class="step-item" data-step="2">
+            <div class="step-num">2</div>
+            <div class="step-label">Market Check</div>
+          </div>
+          <div class="step-line"></div>
+          <div class="step-item" data-step="3">
+            <div class="step-num">3</div>
+            <div class="step-label">Skill Gap</div>
+          </div>
+          <div class="step-line"></div>
+          <div class="step-item" data-step="4">
+            <div class="step-num">4</div>
+            <div class="step-label">Roadmap</div>
+          </div>
+        </div>
+        <!-- INPUT SECTION -->
+        <div class="section-card" id="input-section">
+          <div class="card-title">
+            Your Current Skills
+            <span class="badge">STEP 1</span>
+          </div>
+          <div class="card-sub">Add all the technologies, tools, and frameworks you know.</div>
+
+          <div class="skill-input-row">
+            <input type="text" id="skill-input" placeholder="e.g. React, Python, Docker, Figma…">
+            <button class="btn-add">+ Add Skill</button>
+          </div>
+          <div class="skills-cloud" id="skills-cloud"></div>
+
+          <div style="margin-top:28px;">
+            <div class="card-title" style="font-size:16px;margin-bottom:16px;">
+              Target Role
+              <span class="badge">STEP 2</span>
+            </div>
+            <div class="role-grid" id="role-grid">
+              <!-- Roles will be dynamically injected here by JS -->
+            </div>
+          </div>
+
+          <button class="btn-analyze" id="analyze-btn" disabled>
+            <span>⚡</span> Analyze My Skills
+          </button>
+        </div>
+
+        <!-- ANALYZING OVERLAY -->
+        <div class="section-card" id="analyzing-section" style="display:none;">
+          <div class="analyzing-overlay active">
+            <div class="analyzing-ring"></div>
+            <div class="analyzing-text">Analyzing Your Profile…</div>
+            <div class="analyzing-steps" id="analyzing-steps">
+              <div class="step-line-text" id="al1">🔍 Scanning job market data…</div>
+              <div class="step-line-text" id="al2">📊 Comparing against 10,000+ job listings…</div>
+              <div class="step-line-text" id="al3">🧠 Computing skill gap…</div>
+              <div class="step-line-text" id="al4">🗺️ Building personalized roadmap…</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESULTS SECTION -->
+        <div id="results-section" class="results-section">
+
+          <!-- Stats -->
+          <div class="stats-row">
+            <div class="stat-card c1" style="animation-delay:.1s">
+              <div class="stat-label">Skills You Have</div>
+              <div class="stat-value c1" id="stat-have">0</div>
+              <div class="prog-bar-outer">
+                <div class="prog-bar-inner" id="pb1"></div>
+              </div>
+            </div>
+            <div class="stat-card c3" style="animation-delay:.2s">
+              <div class="stat-label">Skills Missing</div>
+              <div class="stat-value c3" id="stat-miss">0</div>
+              <div class="prog-bar-outer">
+                <div class="prog-bar-inner" id="pb2" style="background:var(--accent3)"></div>
+              </div>
+            </div>
+            <div class="stat-card c2" style="animation-delay:.3s">
+              <div class="stat-label">Market Match</div>
+              <div class="stat-value c2" id="stat-match">0%</div>
+              <div class="prog-bar-outer">
+                <div class="prog-bar-inner" id="pb3" style="background:var(--accent2)"></div>
+              </div>
+            </div>
+            <div class="stat-card c4" style="animation-delay:.4s">
+              <div class="stat-label">Est. Time to Goal</div>
+              <div class="stat-value c4" id="stat-time">—</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:6px;">months</div>
+            </div>
+          </div>
+
+          <!-- Match ring + gap -->
+          <div class="two-col">
+            <div class="section-card match-score-card">
+              <div class="card-title">Market Match Score</div>
+              <div class="match-ring-wrap">
+                <svg width="180" height="180" class="ring-svg">
+                  <defs>
+                    <linearGradient id="ring-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#00E5FF" />
+                      <stop offset="100%" stop-color="#7C4DFF" />
+                    </linearGradient>
+                  </defs>
+                  <circle class="ring-bg" cx="90" cy="90" r="60" />
+                  <circle class="ring-fg" cx="90" cy="90" r="60" id="ring-circle" />
+                  <text class="ring-sublabel" x="90" y="95" id="ring-role">Match</text>
+                </svg>
+              </div>
+              <div class="match-score-footer">
+                <div class="match-score-value" id="ring-pct">0%</div>
+                <div class="match-score-msg" id="match-msg"></div>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <div class="card-title">Skills You Have ✓</div>
+              <div class="skill-list" id="have-list"></div>
+            </div>
+          </div>
+
+          <!-- Missing skills -->
+          <div class="section-card">
+            <div class="card-title">
+              Skill Gap Analysis
+              <span class="badge">MISSING</span>
+            </div>
+            <div class="card-sub">These are the skills most demanded by employers for your target role.</div>
+            <div class="skill-list" id="missing-list"></div>
+          </div>
+
+          <!-- Courses -->
+          <div class="section-card">
+            <div class="card-title">
+              Recommended Courses
+              <span class="badge">PERSONALIZED</span>
+            </div>
+            <div class="card-sub">Curated learning resources to close your skill gap fast.</div>
+            <div class="courses-grid" id="courses-grid"></div>
+          </div>
+
+          <!-- Roadmap -->
+          <div class="section-card">
+            <div class="card-title">Your Learning Roadmap</div>
+            <div class="card-sub">A step-by-step path from where you are to where you want to be.</div>
+            <div class="roadmap" id="roadmap"></div>
+          </div>
+
+          <!-- Save Path -->
+          <div style="text-align:center;margin-top:32px;display:flex;justify-content:center;gap:16px;">
+            <button class="btn-primary" style="padding:12px 32px;border-radius:10px;font-size:14px;width:auto;"
+              id="btn-save-path">
+              💾 Save Path to Profile
+            </button>
+            <button class="btn-add" style="padding:12px 32px;border-radius:10px;font-size:14px;" id="btn-reset">
+              ↺ Analyze Different Skills
+            </button>
+          </div>
+
+        </div><!-- /results -->
+      </div><!-- /main-analyzer-wrapper -->
+    </div><!-- /dashboard-body -->
+  </div><!-- /page-dashboard -->
+
+  <!-- Scripts will be loaded here -->
+  <script type="module" src="app.js"></script>
+
+</body>
+
+</html>
