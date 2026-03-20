@@ -4,6 +4,9 @@
   "description": "Smart Job Market Skill Gap Analyzer",
   "main": "app.js",
   "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
